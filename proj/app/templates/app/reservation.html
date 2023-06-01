@@ -1,0 +1,85 @@
+{% extends 'app\base.html' %}
+{% load static %}
+{% block content %}
+{% load static custom_filters %}
+
+
+
+
+<body id="page-top">
+    <div id="wrapper">
+        {% include 'app\sidebar.html' %}
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                {% include 'app\topbar.html' %}
+                <div class="container-fluid">
+                    <h1>Reservation</h1>
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="transaction_no">Transaction No:</label>
+                            <input type="text" name="transaction_no" id="transaction_no" class="form-control" value="{{ data }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="corpse_last_name">Corpse Last Name:</label>
+                            <input type="text" name="corpse_last_name" id="corpse_last_name" class="form-control" value="{{ form.corpse_last_name.value }}" required>
+                            <div class="invalid-feedback">
+                                {% for error in form.corpse_last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="corpse_first_name">Corpse First Name:</label>
+                            <input type="text" name="corpse_first_name" id="corpse_first_name" class="form-control" value="{{ form.corpse_first_name.value }}" required>
+                            <div class="invalid-feedback">
+                                {% for error in form.corpse_first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Lot">Lot ID:</label>
+                            <input type="text" name="Lot" id="Lot" class="form-control" value="{{ form.Lot.value }}" readonly>
+                            <div class="invalid-feedback">
+                                {% for error in form.Lot.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="date_reserved">Date Reserved:</label>
+                            <input type="date" name="date_reserved" id="date_reserved" class="form-control" value="{{ form.date_reserved.value }}" required>
+                            <div class="invalid-feedback">
+                                {% for error in form.date_reserved.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="user">User:</label>
+                            <input type="text" name="user" id="user" class="form-control" value="{{ request.user.username }}" readonly>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+
+                    
+                </div>
+                {% include 'app\footer.html' %}
+            </div>
+        </div>
+    </div>
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    {% include 'app\logout_modal.html' %}
+</body>
+<script>// Retrieve the lotId parameter from the URL query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const lotId = urlParams.get('lotId');
+    console.log(lotId);
+    // Populate a field with the lotId value
+    const lotIdField = document.getElementById('Lot');
+    lotIdField.value = lotId;
+    </script>
+{% endblock %}

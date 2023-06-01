@@ -1,0 +1,85 @@
+{% extends 'app\base.html' %}
+{% load static %}
+{% block content %}
+{% load static custom_filters %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        #map {
+            width: 100%;
+            height: 790px;
+        }
+    </style>
+
+
+
+<body id="page-top">
+    <div id="wrapper">
+        {% include 'app\sidebar.html' %}
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                {% include 'app\topbar.html' %}
+                <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+   <script>
+        // Initialize the map
+        var map = L.map('map').setView([14.111167301119112, 121.55068540842845], 19);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+            maxZoom: 20
+        }).addTo(map);
+
+var lots = [];
+var myData = JSON.parse('{{ lots_data|escapejs }}');
+for (var i = 0; i < myData.length; i++) {
+    var coordinates = [];
+    var capacity=myData[i]["fields"]["capacity"];
+
+    for (var j = 1; j <= 4; j++) { 
+        const pointString = myData[i]["fields"]["lat_long" + j];
+    const coordinatesString = pointString.split('POINT ')[1];
+    const cleanedCoordinates = coordinatesString.replace(/[()]/g, '').split(' ');
+    const coordinate = cleanedCoordinates.map(coordinate => parseFloat(coordinate));
+    coordinates.push(coordinate);
+    
+    // console.log("capacity: "+myData[i]["fields"]["capacity"])
+    const lot_id =  myData[i]["pk"];
+    
+    }
+  lots.push({
+    
+    coordinates: coordinates,
+    available: capacity > 0,
+    lot_Id: myData[i]["pk"]
+  });
+
+}
+      // Create lot overlays
+        lots.forEach(function(lot) {
+            var color = lot.available  ? 'green' : 'red';
+            var lotPolygon = L.polygon(lot.coordinates, { color: color, fillOpacity: 0.5 }).addTo(map);
+
+            // Add click event listener
+            lotPolygon.on('click', function() {
+                if (lot.available > 0) {
+                    window.location.href = "{% url 'app:reservation' %}" + "?lotId=" + lot.lot_Id;
+                    // alert('This lot is available.');
+
+                } else {
+                    alert('This lot is not available.');
+                }
+            });
+        });
+        
+    </script>
+        {% include 'app\footer.html' %}
+            </div>
+        </div>
+    </div>
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    {% include 'app\logout_modal.html' %}
+</body>
+{% endblock %}
+</html>

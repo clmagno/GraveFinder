@@ -1,0 +1,71 @@
+{% extends 'app\base.html' %}
+{% load static %}
+{% block content %}
+
+<body id="page-top">
+    <div id="wrapper">
+        {% include 'app\sidebar.html' %}
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                {% include 'app\topbar.html' %}
+                <div class="container-fluid">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Available Lots</h1>
+                        <!-- <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                                class="fas fa-download fa-sm text-white-50"></i> Generate Report</a> -->
+                    </div>
+                    <div class="row">
+                        {% for block_data in block_numbers_with_lots %}
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="h1 font-weight-bold text-primary text-uppercase mb-1">
+                                                {{ block_data.lots.count }} </div>
+                                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ block_data.block_number }}</div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                            
+                        {% endfor %}
+                        </div>
+
+                        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                            <h1 class="h3 mb-0 text-gray-800">Reserved Lots</h1>
+                            <!-- <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                                    class="fas fa-download fa-sm text-white-50"></i> Generate Report</a> -->
+                        </div>
+
+                        <div class="row">
+                        {% for block_data in block_numbers_with_lots %}
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="h1 font-weight-bold text-primary text-uppercase mb-1">
+                                                {{ block_data.reserved_lots_count }} </div>
+                                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ block_data.block_number }}</div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>                            
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% include 'app\footer.html' %}
+        </div>
+        
+    </div>
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    {% include 'app\logout_modal.html' %}
+</body>
+{% endblock %}
