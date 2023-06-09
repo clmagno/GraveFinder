@@ -12,9 +12,10 @@ class CustomUserCreationForm(UserCreationForm):
         model = CustomUser
         fields = ("username", "email", "first_name", "last_name", "password1", "password2")
         widgets = {
-            'password1': forms.PasswordInput(),
-            'password2': forms.PasswordInput(),
+            'password1': forms.CharField(widget=forms.TextInput(attrs={'type': 'password'})),
+            'password2': forms.CharField(widget=forms.TextInput(attrs={'type': 'password'})),
         }
+
 
     def save(self, commit=True):
         user = super(CustomUserCreationForm, self).save(commit=False)

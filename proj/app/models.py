@@ -5,15 +5,30 @@ from django.contrib.auth import get_user_model
 from datetime import datetime
 from django.utils import timezone
 from django.conf import settings
+from django.utils.crypto import get_random_string
+import hashlib
 # Create your models here.
 
 
 class CustomUserManager(BaseUserManager):
+    def hash_password(password, salt):
+        # Concatenate the password and salt
+        password_with_salt = password + salt
+
+        # Hash the concatenated string using a hashing algorithm (e.g., SHA256)
+        hashed_password = hashlib.sha256(password_with_salt.encode()).hexdigest()
+
+        return hashed_password
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
+        if not user.salt:
+            user.salt = get_random_string(32)
+
+        hashed_password = hash_password(password, user.salt)
+
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -22,6 +37,8 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
+    
+    
 
 class CustomUser(AbstractBaseUser):
     username = models.CharField(max_length=30, unique=True,  default='')
@@ -30,7 +47,7 @@ class CustomUser(AbstractBaseUser):
     email = models.EmailField(max_length=255, unique=True,  default='')
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-
+    salt = models.CharField(max_length=255, default='')
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'username'
@@ -44,7 +61,12 @@ class CustomUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
-    
+    def save(self, *args, **kwargs):
+        if not self.salt:
+            # Generate a salt value if it is not already set
+            self.salt = get_random_string(32)
+
+        super().save(*args, **kwargs)   
 class Lot(models.Model):
     id = models.AutoField(primary_key=True)
     block_no = models.CharField(max_length=50, default='')

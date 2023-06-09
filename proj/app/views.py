@@ -9,6 +9,19 @@ from django.contrib import messages
 from .models import Reservation, Lot, CustomUser
 from django.contrib.auth import get_user
 from datetime import date
+from rest_framework import viewsets
+from .serializers import UserSerializer
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import LoginSerializer
+
+
+
+
 
 @require_http_methods(['GET', 'POST'])
 def login_view(request):
@@ -25,13 +38,24 @@ def login_view(request):
 
     return render(request, 'app/login.html')
 
+@api_view(['GET', 'POST'])
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return render(request, 'app/login.html')
+        # Check if the request is an API request
+        if 'application/json' in request.headers.get('Content-Type', ''):
+            serializer = UserSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Registration successful'})
+            return Response(serializer.errors, status=400)
+        else:
+            # Handle the web app registration form
+            form = CustomUserCreationForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('app:login')
     else:
+        # Handle the web app registration form
         form = CustomUserCreationForm()
     return render(request, 'app/register.html', {'form': form})
 
@@ -106,4 +130,33 @@ def map(request):
 def navigation(request):
     return render(request, 'app/navigation.html')
 
-    
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+class LoginAPIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        # Retrieve username and password from the request data
+        
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        # Perform authentication and generate tokens
+        
+        user = authenticate(username=username, password=password)
+        if user:
+            refresh = RefreshToken.for_user(user)
+
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            })
+        else:
+            # Invalid credentials
+            return Response({'message': 'Invalid credentials'}, status=401)
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = LoginSerializer
