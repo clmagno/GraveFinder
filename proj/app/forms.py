@@ -1,6 +1,12 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import Reservation, CustomUser
+from django.contrib.auth.forms import AuthenticationForm
+
+
+
+class RememberMeLoginForm(AuthenticationForm):
+    remember_me = forms.BooleanField(required=False, widget=forms.CheckboxInput)
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(max_length=30, required=True)

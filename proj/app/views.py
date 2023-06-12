@@ -28,9 +28,15 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        print(username)
+        remember_me = request.POST.get('remember_me')
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            if remember_me:
+                request.session.set_expiry(604800)  # Set session expiration to 7 days (remember me selected)
+            else:
+                request.session.set_expiry(0)  # Use the default session expiration
+
             login(request, user)
             return redirect('app:dashboard')
         else:
@@ -53,7 +59,12 @@ def register(request):
             form = CustomUserCreationForm(request.POST)
             if form.is_valid():
                 form.save()
+                messages.success(request, 'Registration successful')
                 return redirect('app:login')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
     else:
         # Handle the web app registration form
         form = CustomUserCreationForm()
