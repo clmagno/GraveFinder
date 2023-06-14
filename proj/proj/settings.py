@@ -57,8 +57,8 @@ MIDDLEWARE = [
 
 
 ROOT_URLCONF = 'proj.urls'
-GDAL_LIBRARY_PATH = 'C:/Users/chris/anaconda3/envs/condavenv/Library/bin/gdal.dll'
-# GEOS_LIBRARY_PATH = 'C:/Users/chris/anaconda3/envs/condavenv/Library/bin/geos.dll'
+GDAL_LIBRARY_PATH = 'gdal.dll'
+# GEOS_LIBRARY_PATH = 'geos.dll'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'proj.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default': { 
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'gravefinder',
         'USER': 'postgres',
